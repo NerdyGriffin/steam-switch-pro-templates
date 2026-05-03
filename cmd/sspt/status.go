@@ -86,9 +86,20 @@ func printTemplateStatus(install *steam.Install, st *state.State, t template.Tem
 	case hadPrev && diskHash == prev.InstalledHash:
 		fmt.Printf("    status:        OUTDATED (matches our previous install — apply will upgrade)\n")
 	case hadPrev && prev.ConflictSeenAt != nil:
-		fmt.Printf("    status:        CONFLICT (recorded %s) — run `sspt resolve`\n", prev.ConflictSeenAt.Format("2006-01-02 15:04 UTC"))
+		valve := template.MatchValveHash(t.Filename, diskHash)
+		if valve != nil {
+			fmt.Printf("    status:        CONFLICT (recorded %s) — looks like Valve %s; consider `sspt retire`\n",
+				prev.ConflictSeenAt.Format("2006-01-02 15:04 UTC"), valve.FirstSeen)
+		} else {
+			fmt.Printf("    status:        CONFLICT (recorded %s) — run `sspt resolve`\n", prev.ConflictSeenAt.Format("2006-01-02 15:04 UTC"))
+		}
 	default:
-		fmt.Printf("    status:        UNRECOGNIZED CONTENT — run `sspt apply` to record conflict\n")
+		valve := template.MatchValveHash(t.Filename, diskHash)
+		if valve != nil {
+			fmt.Printf("    status:        UNRECOGNIZED — matches known Valve release (%s); run `sspt apply` then `sspt retire`\n", valve.FirstSeen)
+		} else {
+			fmt.Printf("    status:        UNRECOGNIZED CONTENT — run `sspt apply` to record conflict\n")
+		}
 	}
 
 	if hadPrev {

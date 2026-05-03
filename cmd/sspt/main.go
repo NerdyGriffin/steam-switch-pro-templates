@@ -33,6 +33,7 @@ func main() {
 		newUninstallCmd(),
 		newResolveCmd(),
 		newRetireCmd(),
+		newScanValveCmd(),
 	)
 
 	if err := root.Execute(); err != nil {

@@ -70,6 +70,12 @@ type Result struct {
 	Outcome  Outcome
 	DiskHash string // sha256 of file currently on disk after Apply (empty if absent)
 	Message  string // human-readable summary
+	// ValveMatch is non-nil if the on-disk content matches a known Valve
+	// release (per ValveHashes). Set only when a conflict is detected and
+	// the disk hash is recognized as Valve's; nil otherwise. Callers should
+	// surface this prominently — it's the "you can probably retire now"
+	// signal.
+	ValveMatch *ValveRelease
 }
 
 // Apply runs the conflict-aware install state machine for a single template.
@@ -151,9 +157,15 @@ func Apply(install *steam.Install, st *state.State, t Template, strategy Strateg
 		}
 		entry.ConflictSeenAt = &now
 		st.Templates[t.Filename] = entry
+
+		valve := MatchValveHash(t.Filename, diskHash)
+		msg := "unrecognized content on disk; preserved (run `sspt resolve` to choose)"
+		if valve != nil {
+			msg = fmt.Sprintf("on-disk content matches a known Valve release (%s); consider `sspt retire`", valve.FirstSeen)
+		}
 		return Result{
 			Filename: t.Filename, Path: dst, Outcome: OutcomeConflict, DiskHash: diskHash,
-			Message: "unrecognized content on disk; preserved (run `sspt resolve` to choose)",
+			Message: msg, ValveMatch: valve,
 		}, nil
 	}
 }
