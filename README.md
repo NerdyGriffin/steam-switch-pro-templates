@@ -22,21 +22,37 @@ Future templates (FPS, gamepad+mouse without gyro) may be added — the architec
 
 ## Install (Windows)
 
+**Quick install (one line, PowerShell):**
+
 ```powershell
-# Download latest release binary into any folder, then:
-.\sspt.exe install
+irm https://raw.githubusercontent.com/NerdyGriffin/steam-switch-pro-templates/main/scripts/install.ps1 | iex
 ```
 
-What this does:
+This fetches the latest release, verifies its SHA256 against the published
+`SHA256SUMS`, and runs `sspt install`.
+
+**Manual install:**
+
+1. Download `sspt-windows-amd64.exe` from the [latest release](https://github.com/NerdyGriffin/steam-switch-pro-templates/releases/latest)
+2. (Optional) Verify with `Get-FileHash sspt-windows-amd64.exe` against `SHA256SUMS`
+3. Run: `.\sspt-windows-amd64.exe install`
+
+**What `install` does:**
 - Copies the binary to `%LOCALAPPDATA%\Programs\sspt\sspt.exe`
 - Writes `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\sspt-apply` so the
   apply step runs at every user logon (no admin / no UAC needed)
 - Runs an initial apply
 
 To remove later: `sspt uninstall` (add `--purge` to also delete the binary).
-State file (`%LOCALAPPDATA%\sspt\state.json`) is never touched automatically.
+The state file (`%LOCALAPPDATA%\sspt\state.json`) is never touched
+automatically — delete it by hand if you want a clean slate.
 
-**Why logon trigger and not Task Scheduler?** Task Scheduler registration
+**SmartScreen warning:** the binary is unsigned, so on first download Windows
+will say "Windows protected your PC." Click **More info → Run anyway**. Code
+signing for indie open-source projects costs $100–400/yr; we'll add it if the
+project gets enough users to justify.
+
+**Why a logon trigger and not Task Scheduler?** Task Scheduler registration
 requires admin on many Windows configurations (locked down by Group Policy
 even for current-user tasks). The Run key works without elevation. Steam
 re-reads `controller_base/templates/` whenever the directory changes, so a
@@ -45,10 +61,18 @@ the next time Steam launches after login.
 
 ## Install (Linux)
 
+**Quick install (one line, bash):**
+
 ```bash
-# Download latest release binary, then:
-./sspt install
+curl -fsSL https://raw.githubusercontent.com/NerdyGriffin/steam-switch-pro-templates/main/scripts/install.sh | bash
 ```
+
+This fetches the latest release, verifies SHA256, and places the binary at
+`~/.local/bin/sspt`. Note: automatic trigger registration via systemd is not
+yet implemented on Linux (Phase 3); for now run `sspt apply` manually or wire
+up your own systemd path/timer unit.
+
+**Manual install:** download `sspt-linux-amd64` from the [latest release](https://github.com/NerdyGriffin/steam-switch-pro-templates/releases/latest), verify, and place it on your `$PATH`.
 
 ## Why this exists
 
