@@ -32,6 +32,7 @@ func main() {
 		newInstallCmd(),
 		newUninstallCmd(),
 		newResolveCmd(),
+		newRetireCmd(),
 	)
 
 	if err := root.Execute(); err != nil {
