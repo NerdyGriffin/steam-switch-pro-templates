@@ -67,12 +67,27 @@ the next time Steam launches after login.
 curl -fsSL https://raw.githubusercontent.com/NerdyGriffin/steam-switch-pro-templates/main/scripts/install.sh | bash
 ```
 
-This fetches the latest release, verifies SHA256, and places the binary at
-`~/.local/bin/sspt`. Note: automatic trigger registration via systemd is not
-yet implemented on Linux (Phase 3); for now run `sspt apply` manually or wire
-up your own systemd path/timer unit.
+This fetches the latest release, verifies SHA256, places the binary at
+`~/.local/bin/sspt`, and registers a systemd user-level path unit that watches
+`controller_base/templates/` and runs `sspt apply` on any directory change.
 
-**Manual install:** download `sspt-linux-amd64` from the [latest release](https://github.com/NerdyGriffin/steam-switch-pro-templates/releases/latest), verify, and place it on your `$PATH`.
+**Manual install:** download `sspt-linux-amd64` from the [latest release](https://github.com/NerdyGriffin/steam-switch-pro-templates/releases/latest), verify, place on your `$PATH`, then run:
+
+```bash
+sspt install
+```
+
+**What `install` does on Linux:**
+- Copies the binary to `$XDG_DATA_HOME/sspt/bin/sspt` (default `~/.local/share/sspt/bin/sspt`)
+- Writes `~/.config/systemd/user/sspt.service` (oneshot running `sspt apply`)
+- Writes `~/.config/systemd/user/sspt.path` (watches `controller_base/templates/`)
+- `systemctl --user enable --now sspt.path`
+
+To remove later: `sspt uninstall` (add `--purge` to also delete the binary).
+
+**Inspect:** `systemctl --user status sspt.path sspt.service` &nbsp;·&nbsp; **Logs:** `journalctl --user -u sspt.service`
+
+**Steam install discovery:** searches `$XDG_DATA_HOME/Steam`, `~/.local/share/Steam`, `~/.steam/steam`, `~/.steam/root`, and `~/.steam/debian-installation` (Steam Deck). Override with `--steam-path`.
 
 ## Why this exists
 

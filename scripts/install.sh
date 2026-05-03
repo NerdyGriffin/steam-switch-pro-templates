@@ -8,9 +8,8 @@
 #   1. Fetches the latest release from GitHub
 #   2. Downloads sspt-linux-amd64 to ~/.local/bin/sspt
 #   3. Verifies the SHA256 against the published SHA256SUMS file
-#   4. NOTE: `sspt install` is not yet implemented for Linux (Phase 3).
-#      For now this script just places the binary; you can run `sspt apply`
-#      manually or wire up your own systemd unit.
+#   4. Runs `sspt install` (registers systemd user-level path unit watching
+#      the Steam controller_base/templates directory)
 #
 # All actions are user-scope; no sudo required.
 
@@ -59,7 +58,10 @@ case ":${PATH}:" in
   *) echo "    note: ${DEST_DIR} is not on PATH; add it to your shell rc to invoke 'sspt' directly" ;;
 esac
 
+echo "==> Running 'sspt install' ..."
+"${DEST}" install
+
 echo ""
 echo "==> Done. Try 'sspt status' to inspect state."
-echo "    Service registration ('sspt install') is not yet implemented on Linux"
-echo "    (Phase 3). For now run 'sspt apply' manually or wire up a systemd unit."
+echo "    Inspect trigger:  systemctl --user status sspt.path sspt.service"
+echo "    Trigger logs:     journalctl --user -u sspt.service"
