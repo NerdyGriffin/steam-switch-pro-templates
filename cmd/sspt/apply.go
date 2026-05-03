@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/NerdyGriffin/steam-switch-pro-templates/internal/logging"
+	"github.com/NerdyGriffin/steam-switch-pro-templates/internal/notify"
 	"github.com/NerdyGriffin/steam-switch-pro-templates/internal/state"
 	"github.com/NerdyGriffin/steam-switch-pro-templates/internal/steam"
 	"github.com/NerdyGriffin/steam-switch-pro-templates/internal/template"
@@ -67,6 +68,7 @@ Strategies:
 				fmt.Printf("%-55s %-18s %s\n", res.Filename, res.Outcome, res.Message)
 				if res.Outcome == template.OutcomeConflict {
 					conflicts++
+					notify.Conflict(res.Filename)
 				}
 			}
 
