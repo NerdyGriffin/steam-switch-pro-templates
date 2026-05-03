@@ -29,6 +29,8 @@ func main() {
 	root.AddCommand(
 		newApplyCmd(),
 		newStatusCmd(),
+		newInstallCmd(),
+		newUninstallCmd(),
 	)
 
 	if err := root.Execute(); err != nil {

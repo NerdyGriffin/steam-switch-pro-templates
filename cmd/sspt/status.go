@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/NerdyGriffin/steam-switch-pro-templates/internal/installer"
 	"github.com/NerdyGriffin/steam-switch-pro-templates/internal/state"
 	"github.com/NerdyGriffin/steam-switch-pro-templates/internal/steam"
 	"github.com/NerdyGriffin/steam-switch-pro-templates/internal/template"
@@ -42,6 +43,17 @@ func newStatusCmd() *cobra.Command {
 			fmt.Printf("\nTemplates (%d embedded):\n", len(templates))
 			for _, t := range templates {
 				printTemplateStatus(install, st, t)
+			}
+
+			fmt.Println("\nTrigger:")
+			ok, err := installer.New().IsInstalled()
+			switch {
+			case err != nil:
+				fmt.Println("  installed: ERROR -", err)
+			case ok:
+				fmt.Println("  installed: yes (sspt apply will run on next user logon)")
+			default:
+				fmt.Println("  installed: no — run `sspt install` to register the logon trigger")
 			}
 			return nil
 		},
