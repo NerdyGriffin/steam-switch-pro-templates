@@ -7,6 +7,11 @@ on:
 permissions:
   contents: write   # needed by softprops/action-gh-release
 
+# Opt into Node.js 24 for actions runner (silences deprecation warnings;
+# Node 20 will be removed September 2026).
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build:
     name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
